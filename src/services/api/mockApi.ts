@@ -1,14 +1,11 @@
 import {
-  generateDoctors,
-  generateProducts,
-  generateHealthRecords,
+  generateDoctorsPage,
+  generateProductsPage,
+  generateHealthRecordsPage,
+  generateDoctorSlots,
 } from './mockData';
 
-import { Doctor } from '../../features/consultation/types/doctor';
-import { Product } from '../../features/shop/types/product';
-import { HealthRecord } from '../../features/healthRecords/types/record';
-
-interface PaginatedResponse<T> {
+export interface PaginatedResponse<T> {
   data: T[];
   page: number;
   limit: number;
@@ -16,20 +13,21 @@ interface PaginatedResponse<T> {
   hasNextPage: boolean;
 }
 
-const paginate = <T>(
+
+
+const createPagination = <T>(
   data: T[],
   page: number,
   limit: number,
+  total: number,
 ): PaginatedResponse<T> => {
-  const start = (page - 1) * limit;
-  const end = start + limit;
-
   return {
-    data: data.slice(start, end),
+    data,
     page,
     limit,
-    total: data.length,
-    hasNextPage: end < data.length,
+    total,
+    hasNextPage:
+      page * limit < total,
   };
 };
 
@@ -37,27 +35,76 @@ export const mockApi = {
   async getDoctors(
     page = 1,
     limit = 20,
-  ): Promise<PaginatedResponse<Doctor>> {
-    const doctors = generateDoctors(5000);
+  ): Promise<
+    PaginatedResponse<
+      ReturnType<typeof generateDoctorsPage>[number]
+    >
+  > {
+    const data =
+      generateDoctorsPage(
+        page,
+        limit,
+      );
 
-    return paginate(doctors, page, limit);
+    return createPagination(
+      data,
+      page,
+      limit,
+      5000,
+    );
   },
 
   async getProducts(
     page = 1,
     limit = 20,
-  ): Promise<PaginatedResponse<Product>> {
-    const products = generateProducts(20000);
+  ): Promise<
+    PaginatedResponse<
+      ReturnType<typeof generateProductsPage>[number]
+    >
+  > {
+    const data =
+      generateProductsPage(
+        page,
+        limit,
+      );
 
-    return paginate(products, page, limit);
+    return createPagination(
+      data,
+      page,
+      limit,
+      20000,
+    );
   },
 
   async getHealthRecords(
     page = 1,
     limit = 20,
-  ): Promise<PaginatedResponse<HealthRecord>> {
-    const records = generateHealthRecords(10000);
+  ): Promise<
+    PaginatedResponse<
+      ReturnType<
+        typeof generateHealthRecordsPage
+      >[number]
+    >
+  > {
+    const data =
+      generateHealthRecordsPage(
+        page,
+        limit,
+      );
 
-    return paginate(records, page, limit);
+    return createPagination(
+      data,
+      page,
+      limit,
+      10000,
+    );
   },
+
+  async getDoctorSlots(
+  doctorId: string,
+) {
+  return generateDoctorSlots(
+    doctorId,
+  );
+},
 };

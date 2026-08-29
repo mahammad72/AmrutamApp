@@ -1,8 +1,6 @@
 export type BookingStatus =
-  | 'upcoming'
-  | 'completed'
-  | 'cancelled'
-  | 'pending-sync';
+  | 'confirmed'
+  | 'cancelled';
 
 export interface Booking {
   id: string;
@@ -12,6 +10,7 @@ export interface Booking {
   date: string;
   startTime: string;
   endTime: string;
+  consultationFee: number;
   status: BookingStatus;
   createdAt: string;
 }
