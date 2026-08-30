@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 
 import {
   ActivityIndicator,
@@ -11,14 +11,10 @@ import {
 
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { useDispatch } from 'react-redux';
-
-import type { AppDispatch } from '../../../store';
-
-import { addBooking } from '../store/consultationSlice';
-
-import { createBooking } from '../services/bookingService';
+import { useCreateBookingMutation } from '../../../services/api/baseApi';
 import { ConsultationStackParamList } from '../../../app/navigation/ConsultationNavigator';
+
+
 
 type Props = NativeStackScreenProps<
   ConsultationStackParamList,
@@ -26,57 +22,34 @@ type Props = NativeStackScreenProps<
 >;
 
 const BookingConfirmationScreen = ({ route, navigation }: Props) => {
-  const dispatch = useDispatch<AppDispatch>();
-
   const { doctor, slot } = route.params;
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createBooking, { isLoading }] = useCreateBookingMutation();
 
-  const handleConfirm = useCallback(() => {
-    if (isSubmitting) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    // Simulate a small API delay.
-    setTimeout(() => {
-      const result = createBooking({
+  const handleConfirm = useCallback(async () => {
+    try {
+      await createBooking({
         doctor,
-        slotId: slot.id,
-        date: slot.date,
-        startTime: slot.startTime,
-        endTime: slot.endTime,
-      });
-
-      setIsSubmitting(false);
-
-      if (!result.success) {
-        Alert.alert('Booking failed', result.error);
-
-        return;
-      }
-
-      if (!result.booking) {
-        return;
-      }
-
-      dispatch(addBooking(result.booking));
+        slot,
+      }).unwrap();
 
       Alert.alert(
         'Booking confirmed',
-        `Your consultation with ${doctor.name} is confirmed.`,
+        `Your consultation with ${doctor.name} has been booked.`,
         [
           {
             text: 'View Consultation',
-            onPress: () => {
-              navigation.popToTop();
-            },
+            onPress: () => navigation.navigate('UpcomingConsultation'),
           },
         ],
       );
-    }, 500);
-  }, [doctor, slot, dispatch, navigation, isSubmitting]);
+    } catch (error: any) {
+      Alert.alert(
+        'Booking failed',
+        error?.error ?? 'Unable to book this slot.',
+      );
+    }
+  }, [doctor, slot, createBooking, navigation]);
 
   return (
     <View style={styles.container}>
@@ -107,11 +80,11 @@ const BookingConfirmationScreen = ({ route, navigation }: Props) => {
       </View>
 
       <Pressable
-        disabled={isSubmitting}
-        style={[styles.button, isSubmitting && styles.disabledButton]}
+        disabled={isLoading}
+        style={[styles.button, isLoading && styles.disabledButton]}
         onPress={handleConfirm}
       >
-        {isSubmitting ? (
+        {isLoading ? (
           <ActivityIndicator color="#FFFFFF" />
         ) : (
           <Text style={styles.buttonText}>Confirm Booking</Text>

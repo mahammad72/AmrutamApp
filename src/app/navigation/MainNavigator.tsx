@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import type { MainTabParamList } from './types';
 import ConsultationNavigator from './ConsultationNavigator';
+import ShopNavigator from './ShopNavigator';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -19,7 +20,7 @@ const MainNavigator = () => {
 
       <Tab.Screen
         name="Shop"
-        component={() => null}
+        component={ShopNavigator}
          options={{
           headerShown:false
         }}

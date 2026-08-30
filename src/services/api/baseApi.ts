@@ -1,6 +1,6 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { mockApi } from './mockApi';
+import { mockApi, ProductQueryParams } from './mockApi';
 
 import type {
   PaginationParams,
@@ -8,7 +8,13 @@ import type {
   ProductsResponse,
   HealthRecordsResponse,
 } from './types';
-import { DoctorSlot } from '../../features/consultation/types/doctor';
+
+import type {
+  Doctor,
+  DoctorSlot,
+} from '../../features/consultation/types/doctor';
+
+import type { Booking } from '../../features/consultation/types/booking';
 
 export const baseApi = createApi({
   reducerPath: 'baseApi',
@@ -18,9 +24,10 @@ export const baseApi = createApi({
   tagTypes: ['Doctors', 'Products', 'HealthRecords', 'Bookings'],
 
   endpoints: builder => ({
-    // ----------------------------------------
+    // ========================================
     // Doctors
-    // ----------------------------------------
+    // ========================================
+
     getDoctors: builder.query<DoctorsResponse, PaginationParams>({
       queryFn: async ({ page = 1, limit = 20 }) => {
         try {
@@ -45,13 +52,14 @@ export const baseApi = createApi({
       providesTags: ['Doctors'],
     }),
 
-    // ----------------------------------------
+    // ========================================
     // Products
-    // ----------------------------------------
-    getProducts: builder.query<ProductsResponse, PaginationParams>({
-      queryFn: async ({ page = 1, limit = 20 }) => {
+    // ========================================
+
+    getProducts: builder.query<ProductsResponse, ProductQueryParams>({
+      queryFn: async params => {
         try {
-          const data = await mockApi.getProducts(page, limit);
+          const data = await mockApi.getProducts(params);
 
           return {
             data,
@@ -72,9 +80,10 @@ export const baseApi = createApi({
       providesTags: ['Products'],
     }),
 
-    // ----------------------------------------
+    // ========================================
     // Health Records
-    // ----------------------------------------
+    // ========================================
+
     getHealthRecords: builder.query<HealthRecordsResponse, PaginationParams>({
       queryFn: async ({ page = 1, limit = 20 }) => {
         try {
@@ -98,6 +107,10 @@ export const baseApi = createApi({
 
       providesTags: ['HealthRecords'],
     }),
+
+    // ========================================
+    // Doctor Slots
+    // ========================================
 
     getDoctorSlots: builder.query<DoctorSlot[], string>({
       queryFn: async doctorId => {
@@ -127,6 +140,94 @@ export const baseApi = createApi({
         },
       ],
     }),
+
+    // ========================================
+    // Create Booking
+    // ========================================
+
+    createBooking: builder.mutation<
+      Booking,
+      {
+        doctor: Doctor;
+        slot: DoctorSlot;
+      }
+    >({
+      queryFn: async ({ doctor, slot }) => {
+        try {
+          const data = await mockApi.createBooking({
+            doctor,
+            slot,
+          });
+
+          return {
+            data,
+          };
+        } catch (error) {
+          return {
+            error: {
+              status: 409,
+              error: error instanceof Error ? error.message : 'Booking failed',
+            },
+          };
+        }
+      },
+
+      invalidatesTags: ['Bookings', 'Doctors'],
+    }),
+
+    // ========================================
+    // Upcoming Bookings
+    // ========================================
+
+    getUpcomingBookings: builder.query<Booking[], void>({
+      queryFn: async () => {
+        try {
+          const data = await mockApi.getUpcomingBookings();
+
+          return {
+            data,
+          };
+        } catch (error) {
+          return {
+            error: {
+              status: 500,
+              error:
+                error instanceof Error
+                  ? error.message
+                  : 'Failed to fetch bookings',
+            },
+          };
+        }
+      },
+
+      providesTags: ['Bookings'],
+    }),
+
+    // ========================================
+    // Cancel Booking
+    // ========================================
+
+    cancelBooking: builder.mutation<Booking, string>({
+      queryFn: async bookingId => {
+        try {
+          const data = await mockApi.cancelBooking(bookingId);
+
+          return {
+            data,
+          };
+        } catch (error) {
+          return {
+            error: {
+              status: 409,
+              error:
+                error instanceof Error ? error.message : 'Cancellation failed',
+            },
+          };
+        }
+      },
+
+      invalidatesTags: ['Bookings', 'Doctors'],
+    }),
   }),
 });
 
@@ -135,4 +236,7 @@ export const {
   useGetProductsQuery,
   useGetHealthRecordsQuery,
   useGetDoctorSlotsQuery,
+  useCreateBookingMutation,
+  useGetUpcomingBookingsQuery,
+  useCancelBookingMutation,
 } = baseApi;

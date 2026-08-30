@@ -1,9 +1,10 @@
 import { Doctor, DoctorSlot } from '../../features/consultation/types/doctor';
-import { Product } from '../../features/shop/types/product';
+import { Product,   ProductCategory, } from '../../features/shop/types/product';
 import {
   HealthRecord,
   HealthRecordType,
 } from '../../features/healthRecords/types/record';
+
 
 const doctorNames = [
   'Dr. Ananya Sharma',
@@ -40,6 +41,41 @@ const recordTypes: HealthRecordType[] = [
   'consultation',
   'vaccination',
   'allergy',
+];
+
+
+
+
+const PRODUCT_CATEGORIES: ProductCategory[] = [
+  'Herbal',
+  'Supplements',
+  'Oils',
+  'Skin Care',
+  'Hair Care',
+  'Digestive Care',
+];
+
+const PRODUCT_NAMES = [
+  'Ashwagandha Capsules',
+  'Triphala Tablets',
+  'Brahmi Powder',
+  'Neem Capsules',
+  'Amla Juice',
+  'Turmeric Capsules',
+  'Moringa Powder',
+  'Brahmi Oil',
+  'Kumkumadi Oil',
+  'Almond Hair Oil',
+  'Neem Face Wash',
+  'Aloe Vera Gel',
+  'Sandalwood Cream',
+  'Herbal Shampoo',
+  'Digestive Churna',
+  'Giloy Tablets',
+  'Tulsi Drops',
+  'Shatavari Capsules',
+  'Arjuna Capsules',
+  'Ginger Digestive Powder',
 ];
 
 const getPageIndexes = (
@@ -117,54 +153,71 @@ export const generateDoctorsPage = (
 // Products
 // ----------------------------------------
 
-export const generateProductsPage = (
-  page: number,
-  limit: number,
+export const generateProducts = (
+  count: number,
 ): Product[] => {
-  const indexes = getPageIndexes(
-    page,
-    limit,
-    20000,
+  return Array.from(
+    { length: count },
+    (_, index) => {
+      const basePrice =
+        150 + (index % 50) * 25;
+
+      const discount =
+        5 + (index % 5) * 5;
+
+      const price = Math.round(
+        basePrice -
+          basePrice * (discount / 100),
+      );
+
+      return {
+        id: `product-${index + 1}`,
+
+        name: `${
+          PRODUCT_NAMES[
+            index %
+              PRODUCT_NAMES.length
+          ]
+        } ${index + 1}`,
+
+        description:
+          'Ayurvedic wellness product made with carefully selected natural ingredients.',
+
+        category:
+          PRODUCT_CATEGORIES[
+            index %
+              PRODUCT_CATEGORIES.length
+          ],
+
+        price,
+
+        originalPrice: basePrice,
+
+        discountPercentage: discount,
+
+        rating:
+          3.5 + (index % 15) / 10,
+
+        reviewCount:
+          10 + (index % 1000),
+
+        image:
+          `https://picsum.photos/seed/product-${index}/400/400`,
+
+        inStock:
+          index % 17 !== 0,
+
+        tags:
+          index % 5 === 0
+            ? ['Bestseller']
+            : [], 
+      };
+    },
   );
-
-  return indexes.map(index => {
-    const price =
-      199 + (index % 20) * 50;
-
-    return {
-      id: createId('product', index),
-
-      name: `Ayurvedic Wellness Product ${
-        index + 1
-      }`,
-
-      category:
-        productCategories[
-          index % productCategories.length
-        ],
-
-      description:
-        'A wellness product designed for everyday Ayurvedic care.',
-
-      price,
-
-      originalPrice: price + 100,
-
-      rating: Number(
-        (
-          3.5 +
-          ((index % 15) / 10)
-        ).toFixed(1),
-      ),
-
-      image: `https://picsum.photos/seed/product-${index}/400/400`,
-
-      inStock: index % 7 !== 0,
-
-      tags: ['Ayurveda', 'Wellness'],
-    };
-  });
 };
+
+export const ALL_PRODUCTS =
+  generateProducts(20000);
 
 // ----------------------------------------
 // Health Records

@@ -2,12 +2,16 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 
 import MainNavigator from './MainNavigator';
+import  CartPersistence from '../../features/shop/store/CartPersistencee';
 
 const RootNavigator = () => {
   return (
-    <NavigationContainer>
-      <MainNavigator />
-    </NavigationContainer>
+    <>
+      <CartPersistence />
+      <NavigationContainer>
+        <MainNavigator />
+      </NavigationContainer>
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState , useEffect} from 'react';
 
 import {
   ActivityIndicator,
@@ -61,8 +61,12 @@ const DoctorListScreen = ({ navigation }: any) => {
       );
     }
 
-    return result;
+    return result ?? [];
   }, [data?.data, specialization, debouncedSearch]);
+
+  useEffect(() => {
+  setPage(1);
+}, [debouncedSearch, specialization]);
 
   const handleDoctorPress = useCallback(
     (doctor: Doctor) => {

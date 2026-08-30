@@ -1,96 +1,165 @@
-import React, { useCallback } from 'react';
+import React, {
+  useCallback,
+} from 'react';
 
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
-import { useDispatch, useSelector } from 'react-redux';
+import {
+  useCancelBookingMutation,
+  useGetUpcomingBookingsQuery,
+} from '../../../services/api/baseApi';
 
-import type { RootState } from '../../../store';
+const UpcomingConsultationScreen =
+  () => {
+    const {
+      data: bookings = [],
+      isLoading,
+      isError,
+    } =
+      useGetUpcomingBookingsQuery();
 
-import { cancelBooking } from '../store/consultationSlice';
+    const [
+      cancelBooking,
+      {
+        isLoading: isCancelling,
+      },
+    ] =
+      useCancelBookingMutation();
 
-import { cancelBooking as cancelBookingService } from '../services/bookingService';
+    const handleCancel =
+      useCallback(
+        (bookingId: string) => {
+          Alert.alert(
+            'Cancel consultation',
+            'Are you sure you want to cancel this consultation?',
+            [
+              {
+                text: 'Keep',
+                style: 'cancel',
+              },
 
-const UpcomingConsultationScreen = () => {
-  const dispatch = useDispatch();
+              {
+                text: 'Cancel',
+                style: 'destructive',
 
-  const bookings = useSelector(
-    (state: RootState) => state.consultation.bookings,
-  );
+                onPress: async () => {
+                  try {
+                    await cancelBooking(
+                      bookingId,
+                    ).unwrap();
 
-  const upcomingBookings = bookings.filter(
-    booking => booking.status === 'confirmed',
-  );
-
-  const handleCancel = useCallback(
-    (bookingId: string) => {
-      Alert.alert(
-        'Cancel consultation',
-        'Are you sure you want to cancel this consultation?',
-        [
-          {
-            text: 'Keep',
-            style: 'cancel',
-          },
-          {
-            text: 'Cancel',
-            style: 'destructive',
-            onPress: () => {
-              const result = cancelBookingService(bookingId);
-
-              if (!result.success) {
-                Alert.alert('Unable to cancel', result.error);
-
-                return;
-              }
-
-              dispatch(cancelBooking(bookingId));
-            },
-          },
-        ],
+                    Alert.alert(
+                      'Cancelled',
+                      'Your consultation has been cancelled.',
+                    );
+                  } catch (error: any) {
+                    Alert.alert(
+                      'Cancellation failed',
+                      error?.error ??
+                        'Unable to cancel booking.',
+                    );
+                  }
+                },
+              },
+            ],
+          );
+        },
+        [cancelBooking],
       );
-    },
-    [dispatch],
-  );
 
-  if (upcomingBookings.length === 0) {
-    return (
-      <View style={styles.empty}>
-        <Text style={styles.emptyTitle}>No upcoming consultations</Text>
+    if (isLoading) {
+      return (
+        <View style={styles.center}>
+          <ActivityIndicator />
+          <Text>
+            Loading consultation...
+          </Text>
+        </View>
+      );
+    }
 
-        <Text style={styles.emptyText}>
-          Your confirmed consultations will appear here.
-        </Text>
-      </View>
-    );
-  }
+    if (isError) {
+      return (
+        <View style={styles.center}>
+          <Text>
+            Unable to load consultations.
+          </Text>
+        </View>
+      );
+    }
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Upcoming Consultation</Text>
-
-      {upcomingBookings.map(booking => (
-        <View key={booking.id} style={styles.card}>
-          <Text style={styles.doctor}>{booking.doctorName}</Text>
-
-          <Text style={styles.date}>{booking.date}</Text>
-
-          <Text style={styles.time}>
-            {booking.startTime} - {booking.endTime}
+    if (bookings.length === 0) {
+      return (
+        <View style={styles.center}>
+          <Text style={styles.emptyTitle}>
+            No upcoming consultations
           </Text>
 
-          <Text style={styles.fee}>₹{booking.consultationFee}</Text>
-
-          <Pressable
-            style={styles.cancelButton}
-            onPress={() => handleCancel(booking.id)}
-          >
-            <Text style={styles.cancelText}>Cancel Consultation</Text>
-          </Pressable>
+          <Text style={styles.emptyText}>
+            Your confirmed consultations
+            will appear here.
+          </Text>
         </View>
-      ))}
-    </View>
-  );
-};
+      );
+    }
+
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>
+          Upcoming Consultation
+        </Text>
+
+        {bookings.map(booking => (
+          <View
+            key={booking.id}
+            style={styles.card}
+          >
+            <Text style={styles.doctor}>
+              {booking.doctorName}
+            </Text>
+
+            <Text style={styles.date}>
+              {booking.date}
+            </Text>
+
+            <Text style={styles.time}>
+              {booking.startTime} -{' '}
+              {booking.endTime}
+            </Text>
+
+            <Text style={styles.fee}>
+              ₹{booking.consultationFee}
+            </Text>
+
+            <Pressable
+              disabled={isCancelling}
+              style={styles.cancelButton}
+              onPress={() =>
+                handleCancel(
+                  booking.id,
+                )
+              }
+            >
+              <Text
+                style={styles.cancelText}
+              >
+                {isCancelling
+                  ? 'Cancelling...'
+                  : 'Cancel Consultation'}
+              </Text>
+            </Pressable>
+          </View>
+        ))}
+      </View>
+    );
+  };
 
 export default UpcomingConsultationScreen;
 
@@ -99,6 +168,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#F8F8F3',
+  },
+
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
   },
 
   title: {
@@ -147,13 +223,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  empty: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-
   emptyTitle: {
     fontSize: 18,
     fontWeight: '700',
@@ -161,7 +230,7 @@ const styles = StyleSheet.create({
 
   emptyText: {
     marginTop: 8,
-    textAlign: 'center',
     color: '#6B7280',
+    textAlign: 'center',
   },
 });
