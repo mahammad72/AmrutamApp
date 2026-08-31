@@ -9,32 +9,31 @@ import {
   View,
 } from 'react-native';
 
-import type {
-  NativeStackScreenProps,
-} from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ShopStackParamList } from '../../../app/navigation/ShopNavigator';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { addToCart, toggleWishlist } from '../store/cartSlice';
+import { selectIsWishlisted } from '../store/cartSelectors';
 
+type Props = NativeStackScreenProps<ShopStackParamList, 'ProductDetails'>;
 
+const ProductDetailsScreen = ({ route }: Props) => {
+  const { product } = route.params;
 
-type Props =
-  NativeStackScreenProps<
-    ShopStackParamList,
-    'ProductDetails'
-  >;
+  const dispatch = useAppDispatch();
 
-const ProductDetailsScreen = ({
-  route,
-}: Props) => {
-  const {
-    product,
-  } = route.params;
+  const isWishlisted = useAppSelector(selectIsWishlisted(product.id));
+
+  const handleAddToCart = () => {
+    dispatch(addToCart(product));
+  };
+
+  const handleWishlist = () => {
+    dispatch(toggleWishlist(product));
+  };
 
   return (
-    <ScrollView
-      contentContainerStyle={
-        styles.container
-      }
-    >
+    <ScrollView contentContainerStyle={styles.container}>
       <Image
         source={{
           uri: product.image,
@@ -43,81 +42,32 @@ const ProductDetailsScreen = ({
       />
 
       <View style={styles.card}>
-        <Text style={styles.category}>
-          {product.category}
-        </Text>
+        <Text style={styles.category}>{product.category}</Text>
 
-        <Text style={styles.title}>
-          {product.name}
-        </Text>
+        <Text style={styles.title}>{product.name}</Text>
 
-        <View
-          style={styles.ratingRow}
-        >
-          <Text style={styles.rating}>
-            ★{' '}
-            {product.rating.toFixed(
-              1,
-            )}
-          </Text>
+        <View style={styles.ratingRow}>
+          <Text style={styles.rating}>★ {product.rating.toFixed(1)}</Text>
 
-          <Text
-            style={styles.reviews}
-          >
-            {product.reviewCount}{' '}
-            reviews
-          </Text>
+          <Text style={styles.reviews}>{product.reviewCount} reviews</Text>
         </View>
 
-        <View
-          style={styles.priceRow}
-        >
-          <Text style={styles.price}>
-            ₹{product.price}
-          </Text>
+        <View style={styles.priceRow}>
+          <Text style={styles.price}>₹{product.price}</Text>
 
-          <Text
-            style={styles.originalPrice}
-          >
-            ₹{product.originalPrice}
-          </Text>
+          <Text style={styles.originalPrice}>₹{product.originalPrice}</Text>
         </View>
 
-        <Text
-          style={styles.description}
-        >
-          {product.description}
-        </Text>
+        <Text style={styles.description}>{product.description}</Text>
 
-        <Pressable
-          style={styles.cartButton}
-          onPress={() => {
-            // Cart implementation
-            // in next part.
-          }}
-        >
-          <Text
-            style={
-              styles.cartButtonText
-            }
-          >
-            Add to Cart
-          </Text>
+        <Pressable style={styles.cartButton} onPress={handleAddToCart}>
+          <Text style={styles.cartButtonText}>Add to Cart</Text>
         </Pressable>
 
-        <Pressable
-          style={styles.wishlistButton}
-          onPress={() => {
-            // Wishlist implementation
-            // in next part.
-          }}
-        >
-          <Text
-            style={
-              styles.wishlistText
-            }
-          >
-            ♡ Add to Wishlist
+        <Pressable style={styles.wishlistButton} onPress={handleWishlist}>
+          <Text style={styles.wishlistText}>
+            {' '}
+            {isWishlisted ? '♥ Remove from Wishlist' : '♡ Add to Wishlist'}
           </Text>
         </Pressable>
       </View>
@@ -186,8 +136,7 @@ const styles = StyleSheet.create({
   originalPrice: {
     marginLeft: 10,
     color: '#9CA3AF',
-    textDecorationLine:
-      'line-through',
+    textDecorationLine: 'line-through',
   },
 
   description: {

@@ -5,7 +5,13 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface WishlistItem {
+  product: Product;
+  addedAt: number;
+}
+
 export interface CartState {
   items: CartItem[];
-  wishlist: string[];
+
+  wishlist: WishlistItem[];
 }

@@ -18,8 +18,9 @@ import { colors } from '../../../theme/colors';
 import ProductFilters from '../components/ProductFilters';
 import SortSelector from '../components/SortSelector';
 import { useDebouncedValue } from '../utils/useDebouncedValue';
-import { useAppDispatch } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { addToCart } from '../store/cartSlice';
+import { selectCartCount } from '../store/cartSelectors';
 
 type Props = NativeStackScreenProps<ShopStackParamList, 'ProductList'>;
 
@@ -41,6 +42,8 @@ const ProductListScreen = ({ navigation }: Props) => {
   const [priceRange, setPriceRange] = useState<
     'all' | '0_500' | '500_1000' | '1000_2000' | '2000_plus'
   >('all');
+
+  const cartCount = useAppSelector(selectCartCount);
 
   const getPriceFilters = () => {
     switch (priceRange) {
@@ -220,7 +223,25 @@ const ProductListScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Ayurvedic Shop</Text>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text style={styles.title}>Ayurvedic Shop</Text>
+        <View style={{ justifyContent: 'flex-end', flexDirection: 'row',  }}>
+          <Pressable
+            style={{ alignSelf: 'flex-end', paddingHorizontal:10 }}
+            onPress={() => navigation.navigate('Cart')}
+          >
+            <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
+              🛒
+            </Text>
+          </Pressable>
+          <Pressable
+            style={{ alignSelf: 'flex-end' }}
+            onPress={() => navigation.navigate('Wishlist')}
+          >
+            <Text style={{ fontSize: 18, fontWeight: 'bold' }}>❤️</Text>
+          </Pressable>
+        </View>
+      </View>
 
       <TextInput
         value={search}

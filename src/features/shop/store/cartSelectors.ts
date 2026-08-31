@@ -1,40 +1,20 @@
-import type {
-  RootState,
-} from '../../../store';
+import type { RootState } from '../../../store';
 
-export const selectCartItems = (
-  state: RootState,
-) => state.cart.items;
+export const selectCartItems = (state: RootState) => state.cart.items;
 
-export const selectWishlist = (
-  state: RootState,
-) => state.cart.wishlist;
+export const selectWishlist = (state: RootState) => state.cart.wishlist;
 
-export const selectCartCount = (
-  state: RootState,
-) =>
+export const selectWishlistCount = (state: RootState) =>
+  state.cart.wishlist.length;
+
+export const selectCartCount = (state: RootState) =>
+  state.cart.items.reduce((total, item) => total + item.quantity, 0);
+
+export const selectCartSubtotal = (state: RootState) =>
   state.cart.items.reduce(
-    (total, item) =>
-      total + item.quantity,
+    (total, item) => total + item.product.price * item.quantity,
     0,
   );
 
-export const selectCartSubtotal = (
-  state: RootState,
-) =>
-  state.cart.items.reduce(
-    (total, item) =>
-      total +
-      item.product.price *
-        item.quantity,
-    0,
-  );
-
-export const selectIsWishlisted =
-  (
-    productId: string,
-  ) =>
-  (state: RootState) =>
-    state.cart.wishlist.includes(
-      productId,
-    );
+export const selectIsWishlisted = (productId: string) => (state: RootState) =>
+  state.cart.wishlist.some(item => item.product.id === productId);

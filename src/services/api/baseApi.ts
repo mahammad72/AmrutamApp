@@ -15,6 +15,12 @@ import type {
 } from '../../features/consultation/types/doctor';
 
 import type { Booking } from '../../features/consultation/types/booking';
+import type { HealthRecord } from '../../features/healthRecords/types/healthRecord';
+
+interface PaginatedParams {
+  page?: number;
+  limit?: number;
+}
 
 export const baseApi = createApi({
   reducerPath: 'baseApi',
@@ -84,7 +90,7 @@ export const baseApi = createApi({
     // Health Records
     // ========================================
 
-    getHealthRecords: builder.query<HealthRecordsResponse, PaginationParams>({
+    getHealthRecords: builder.query<HealthRecordsResponse, PaginatedParams>({
       queryFn: async ({ page = 1, limit = 20 }) => {
         try {
           const data = await mockApi.getHealthRecords(page, limit);
@@ -92,14 +98,11 @@ export const baseApi = createApi({
           return {
             data,
           };
-        } catch (error) {
+        } catch (error: any) {
           return {
             error: {
               status: 500,
-              error:
-                error instanceof Error
-                  ? error.message
-                  : 'Failed to fetch health records',
+              message: error.message,
             },
           };
         }

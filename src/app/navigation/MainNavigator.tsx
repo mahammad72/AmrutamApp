@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from './types';
 import ConsultationNavigator from './ConsultationNavigator';
 import ShopNavigator from './ShopNavigator';
+import HealthRecordsNavigator from './HealthRecordsNavigator';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -28,7 +29,7 @@ const MainNavigator = () => {
 
       <Tab.Screen
         name="HealthRecords"
-        component={() => null}
+        component={HealthRecordsNavigator}
          options={{
           headerShown:false
         }}

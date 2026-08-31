@@ -18,6 +18,94 @@ import type {
   ProductSort,
 } from '../../features/shop/types/product';
 
+import type { HealthRecord } from '../../features/healthRecords/types/healthRecord';
+
+const healthRecords: HealthRecord[] = [
+  {
+    id: 'hr-001',
+    title: 'Complete Blood Count',
+    description: 'Routine blood examination.',
+    type: 'lab_report',
+    date: '2026-08-20',
+    doctorName: 'Dr. Rahul Sharma',
+    hospitalName: 'Amrutam Wellness Center',
+    tags: ['Blood Test', 'Routine'],
+    attachments: [
+      {
+        id: 'att-001',
+        name: 'cbc-report.pdf',
+        uri: 'https://example.com/cbc-report.pdf',
+        type: 'pdf',
+      },
+    ],
+    createdAt: '2026-08-20T10:30:00Z',
+  },
+
+  {
+    id: 'hr-002',
+    title: 'Ayurvedic Prescription',
+    description: 'Prescription after consultation.',
+    type: 'prescription',
+    date: '2026-08-15',
+    doctorName: 'Dr. Amit Patel',
+    hospitalName: 'Amrutam Ayurveda',
+    tags: ['Ayurveda', 'Prescription'],
+    attachments: [
+      {
+        id: 'att-002',
+        name: 'prescription.jpg',
+        uri: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae',
+        type: 'image',
+      },
+    ],
+    createdAt: '2026-08-15T09:20:00Z',
+  },
+
+  {
+    id: 'hr-003',
+    title: 'General Consultation',
+    description: 'Follow-up consultation.',
+    type: 'consultation',
+    date: '2026-07-25',
+    doctorName: 'Dr. Neha Shah',
+    hospitalName: 'Amrutam Wellness Center',
+    tags: ['Follow Up', 'General'],
+    attachments: [],
+    createdAt: '2026-07-25T11:00:00Z',
+  },
+
+  {
+    id: 'hr-004',
+    title: 'COVID-19 Vaccination',
+    description: 'Vaccination record.',
+    type: 'vaccination',
+    date: '2026-07-12',
+    tags: ['Vaccination', 'COVID-19'],
+    attachments: [],
+    createdAt: '2026-07-12T08:30:00Z',
+  },
+
+  {
+    id: 'hr-005',
+    title: 'Medicine Allergy',
+    description: 'Reported allergy to a medicine.',
+    type: 'allergy',
+    date: '2026-06-18',
+    doctorName: 'Dr. Priya Mehta',
+    tags: ['Allergy', 'Medicine'],
+    attachments: [],
+    createdAt: '2026-06-18T13:00:00Z',
+  },
+];
+
+export const getHealthRecords = async (page = 1, limit = 20) => {
+  const start = (page - 1) * limit;
+
+  const end = start + limit;
+
+  return healthRecords.slice(start, end);
+};
+
 // ----------------------------------------
 // ProductQueryParams interface
 // ----------------------------------------
