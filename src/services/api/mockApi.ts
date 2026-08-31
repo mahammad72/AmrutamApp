@@ -20,7 +20,7 @@ import type {
 
 import type { HealthRecord } from '../../features/healthRecords/types/healthRecord';
 
-const healthRecords: HealthRecord[] = [
+let healthRecords: HealthRecord[] = [
   {
     id: 'hr-001',
     title: 'Complete Blood Count',
@@ -104,6 +104,22 @@ export const getHealthRecords = async (page = 1, limit = 20) => {
   const end = start + limit;
 
   return healthRecords.slice(start, end);
+};
+
+export const createHealthRecord = async (
+  record: Omit<HealthRecord, 'id' | 'createdAt'>,
+): Promise<HealthRecord> => {
+  const newRecord: HealthRecord = {
+    ...record,
+
+    id: `hr-${Date.now()}`,
+
+    createdAt: new Date().toISOString(),
+  };
+
+  healthRecords = [newRecord, ...healthRecords];
+
+  return newRecord;
 };
 
 // ----------------------------------------
@@ -329,28 +345,17 @@ export const mockApi = {
 
     const booking: Booking = {
       id: `booking-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-
       doctorId: doctor.id,
-
       doctorName: doctor.name,
-
       slotId: slot.id,
-
       date: slot.date,
-
       startTime: slot.startTime,
-
       endTime: slot.endTime,
-
       consultationFee: doctor.consultationFee,
-
       status: 'confirmed',
-
       createdAt: new Date().toISOString(),
     };
-
     bookings.push(booking);
-
     return booking;
   },
 
@@ -380,5 +385,19 @@ export const mockApi = {
     booking.status = 'cancelled';
 
     return booking;
+  },
+  async createHealthRecord(params: Omit<HealthRecord, 'id' | 'createdAt'>) {
+    const now = new Date().toISOString();
+
+    const newRecord: HealthRecord = {
+      ...params,
+
+      id: `health-${Date.now()}`,
+      createdAt: now,
+    };
+
+    healthRecords.unshift(newRecord);
+
+    return newRecord;
   },
 };

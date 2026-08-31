@@ -50,12 +50,12 @@ const HealthRecordsScreen = ({ navigation }: any) => {
     if (!Array.isArray(rawSections)) return [];
 
     const items: ListItem[] = [];
-    rawSections.forEach((section) => {
+    rawSections.forEach((section:any) => {
       if (section && section.title) {
         items.push({ type: 'HEADER', title: section.title, id: `header-${section.title}` });
       }
       if (Array.isArray(section?.data)) {
-        section.data.forEach((record) => {
+        section?.data.forEach((record:any) => {
           if (record && record.id) {
             items.push({ type: 'RECORD', data: record, id: record.id });
           }
@@ -94,7 +94,6 @@ const HealthRecordsScreen = ({ navigation }: any) => {
 
       <FlashList
         data={flatListData}
-        estimatedItemSize={80}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => {
           if (item.type === 'HEADER') {

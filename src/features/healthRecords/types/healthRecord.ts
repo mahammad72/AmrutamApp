@@ -5,7 +5,9 @@ export type HealthRecordType =
   | 'vaccination'
   | 'allergy';
 
-export type AttachmentType = 'image' | 'pdf';
+export type AttachmentType =
+  | 'image'
+  | 'pdf';
 
 export interface HealthRecordAttachment {
   id: string;
@@ -15,6 +17,10 @@ export interface HealthRecordAttachment {
   uri: string;
 
   type: AttachmentType;
+
+  mimeType?: string;
+
+  size?: number;
 
   thumbnailUri?: string;
 }

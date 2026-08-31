@@ -1,6 +1,6 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { mockApi, ProductQueryParams } from './mockApi';
+import { mockApi, ProductQueryParams, createHealthRecord } from './mockApi';
 
 import type {
   PaginationParams,
@@ -231,6 +231,26 @@ export const baseApi = createApi({
 
       invalidatesTags: ['Bookings', 'Doctors'],
     }),
+    createHealthRecord: builder.mutation< HealthRecord, Omit<HealthRecord, 'id' | 'createdAt'>>({
+      queryFn: async record => {
+        try {
+          const data = await mockApi.createHealthRecord(record);
+
+          return {
+            data,
+          };
+        } catch (error: any) {
+          return {
+            error: {
+              status: 500,
+              message: error.message,
+            },
+          };
+        }
+      },
+
+      invalidatesTags: ['HealthRecords'],
+    }),
   }),
 });
 
@@ -238,6 +258,7 @@ export const {
   useGetDoctorsQuery,
   useGetProductsQuery,
   useGetHealthRecordsQuery,
+  useCreateHealthRecordMutation,
   useGetDoctorSlotsQuery,
   useCreateBookingMutation,
   useGetUpcomingBookingsQuery,
